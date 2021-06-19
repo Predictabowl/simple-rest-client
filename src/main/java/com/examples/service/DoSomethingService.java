@@ -1,11 +1,12 @@
 package com.examples.service;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -23,12 +24,21 @@ public class DoSomethingService {
 		client = HttpClientBuilder.create().build();
 	}
 	
-	public Employee getEmployeeById(String id) throws ClientProtocolException, IOException{
+	public Employee getEmployeeById(String id) throws IOException{
 		var getRequest = new HttpGet(EMPLOYEES_URI+"/"+id);
 		getRequest.addHeader("accept", MediaType.APPLICATION_JSON);
 		
 		HttpResponse response = client.execute(getRequest);
-		String jsonResponse = EntityUtils.toString(response.getEntity());
+		var jsonResponse = EntityUtils.toString(response.getEntity());
 		return new ObjectMapper().readValue(jsonResponse, Employee.class);
+	}
+	
+	public List<Employee> getAllEmployees() throws IOException{
+		HttpGet getRequest = new HttpGet(EMPLOYEES_URI);
+		getRequest.addHeader("accept",MediaType.APPLICATION_JSON);
+		
+		HttpResponse response = client.execute(getRequest);
+		var jsonResponse = EntityUtils.toString(response.getEntity());
+		return Arrays.asList(new ObjectMapper().readValue(jsonResponse, Employee[].class));
 	}
 }
